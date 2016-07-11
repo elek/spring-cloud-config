@@ -308,7 +308,7 @@ public class EnvironmentController {
 		}
 	}
 
-	private Map<String, Object> convertToProperties(Environment profiles) {
+	protected Map<String, Object> convertToProperties(Environment profiles) {
 
 		// Map of unique keys containing full map of properties for each unique key
 		Map<String, Map<String, Object>> map = new TreeMap<>();

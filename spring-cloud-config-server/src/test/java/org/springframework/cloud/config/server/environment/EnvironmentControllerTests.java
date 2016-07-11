@@ -88,6 +88,58 @@ public class EnvironmentControllerTests {
 	}
 
 	@Test
+	public void convertToPropertiesWithOverride(){
+
+		Map<String,String> appProperties = new HashMap<>();
+        appProperties.put("A", "X");
+        appProperties.put("S", "1");
+        this.environment.addFirst(new PropertySource("application.properties", appProperties));
+
+        Map<String,String> myAppProperties = new HashMap<>();
+        myAppProperties.put("A", "Y");
+        myAppProperties.put("S", "2");
+        this.environment.addFirst(new PropertySource("myapp.properties", myAppProperties));
+
+        Map<String,String> myAppEnvProperties = new HashMap<>();
+        myAppEnvProperties.put("A", "Z");
+        myAppEnvProperties.put("S", "3");
+        this.environment.addFirst(new PropertySource("myapp-myenv.properties", myAppEnvProperties));
+
+        Map<String, Object> result = this.controller.convertToProperties(this.environment);
+
+        assertEquals("Z", result.get("A"));
+        assertEquals("3", result.get("S"));
+
+    }
+
+	@Test
+	public void convertToPropertiesWithOverrideOrderProblem(){
+
+		Map<String,String> appProperties = new HashMap<>();
+		appProperties.put("A", "X");
+		appProperties.put("S", "1");
+		this.environment.addFirst(new PropertySource("application.properties", appProperties));
+
+		Map<String,String> myAppProperties = new HashMap<>();
+		myAppProperties.put("A", "Y");
+		myAppProperties.put("S", "2");
+		myAppProperties.put("Y", "0");
+		this.environment.addFirst(new PropertySource("myapp.properties", myAppProperties));
+
+		Map<String,String> myAppEnvProperties = new HashMap<>();
+		myAppEnvProperties.put("A", "Z");
+		myAppEnvProperties.put("S", "3");
+		this.environment.addFirst(new PropertySource("myapp-myenv.properties", myAppEnvProperties));
+
+		Map<String, Object> result = this.controller.convertToProperties(this.environment);
+
+		assertEquals("Z", result.get("A"));
+		assertEquals("3", result.get("S"));
+		assertEquals("0", result.get("Y"));
+
+	}
+
+	@Test
 	public void placeholdersResolvedInYaml() throws Exception {
 		whenPlaceholders();
 		String yaml = this.controller.yaml("foo", "bar", true).getBody();
